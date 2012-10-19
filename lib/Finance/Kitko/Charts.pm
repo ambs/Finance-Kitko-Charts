@@ -4,9 +4,11 @@ use 5.006;
 use strict;
 use warnings;
 
+=encoding UTF-8
+
 =head1 NAME
 
-Finance::Kitko::Charts - The great new Finance::Kitko::Charts!
+Finance::Kitko::Charts - Retrieve URLs for gold and silver quotes.
 
 =head1 VERSION
 
@@ -16,37 +18,89 @@ Version 0.01
 
 our $VERSION = '0.01';
 
-
 =head1 SYNOPSIS
-
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
 
     use Finance::Kitko::Charts;
 
-    my $foo = Finance::Kitko::Charts->new();
-    ...
+    my $charts = Finance::Kitko::Charts->new();
 
-=head1 EXPORT
+    # all share the same API, see bellow
+    $data = $charts->gold();
+    $data = $charts->silver();
+    $data = $charts->platinum();
+    $data = $charts->palladium();
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+=head1 USAGE
 
-=head1 SUBROUTINES/METHODS
+Call the method, receive a hash table reference. Keys for different
+views ('24h' for 24 hour comparison, 'ny' for New York chart, '30d'
+for a month, '60d' for two months, '6m' for six months, '1y' for one
+year and '5y' for five years.
 
-=head2 function1
+=head1 AVAILABLE METHODS
+
+=head2 new
+
+Returns a new Finance::Kitko::Charts object.
 
 =cut
 
-sub function1 {
+sub new {
+    my $c = shift;
+    return bless {}, $c;
 }
 
-=head2 function2
+=head2 gold
 
 =cut
 
-sub function2 {
+sub gold {
+    my ($self, %opts) = @_;
+    $self->_fetch( gold => %opts );
+}
+
+=head2 silver
+
+=cut
+
+sub silver {
+    my ($self, %opts) = @_;
+    $self->_fetch( silver => %opts );
+}
+
+=head2 platinum
+
+=cut
+
+sub platinum {
+    my ($self, %opts) = @_;
+    $self->_fetch( platinum => %opts );
+}
+
+
+=head2 palladium
+
+=cut
+
+sub palladium {
+    my ($self, %opts) = @_;
+    $self->_fetch( palladium => %opts );
+}
+
+sub _fetch {
+    my ($self, $metal, %opts) = @_;
+
+    my %symb = qw(silver ag gold au platinum pt palladium pd);
+
+    return {
+            '24h' => sprintf("http://www.kitco.com/images/live/%sw.gif", $metal),
+            'ny'  => sprintf("http://www.kitco.com/images/live/ny%sw.gif", $metal),
+            '30d' => sprintf("http://www.kitco.com/LFgif/%s0030lnb.gif", $symb{$metal}),
+            '60d' => sprintf("http://www.kitco.com/LFgif/%s0060lnb.gif", $symb{$metal}),
+            '6m'  => sprintf("http://www.kitco.com/LFgif/%s0182nyb.gif", $symb{$metal}),
+            '1y'  => sprintf("http://www.kitco.com/LFgif/%s0365nyb.gif", $symb{$metal}),
+            '5y'  => sprintf("http://www.kitco.com/LFgif/%s1825nyb.gif", $symb{$metal})
+           };
 }
 
 =head1 AUTHOR
